@@ -24,6 +24,11 @@ public class NetworkManagerInitializer : MonoBehaviour
                 SessionData.Instance.hostAllocation.Key,
                 SessionData.Instance.hostAllocation.ConnectionData
             );
+#if UNITY_WEBGL
+            Debug.Log("WS");
+            transport.SetRelayServerData(AllocationUtils.ToRelayServerData(SessionData.Instance.hostAllocation, "wss"));
+            NetworkManager.Singleton.GetComponent<UnityTransport>().UseWebSockets = true;
+#endif
             NetworkManager.Singleton.StartHost();
         } else {
             JoinAllocation allocation = await RelayService.Instance.JoinAllocationAsync(SessionData.Instance.gameCode);
@@ -36,6 +41,10 @@ public class NetworkManagerInitializer : MonoBehaviour
                 allocation.ConnectionData,
                 allocation.HostConnectionData
             );
+#if UNITY_WEBGL
+            NetworkManager.Singleton.GetComponent<UnityTransport>().UseWebSockets = true;
+            transport.SetRelayServerData(AllocationUtils.ToRelayServerData(allocation, "wss"));
+#endif
             NetworkManager.Singleton.StartClient();
         }
 
